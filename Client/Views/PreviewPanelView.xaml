@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="Client.Views.PreviewPanelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" DataContext="{DynamicResource FileViewModel}"
+             d:DesignHeight="250" d:DesignWidth="450" MinHeight="100">
+    <UserControl.Resources>
+        <Style x:Key="ImageView" TargetType="ScrollViewer">
+            <Style.Setters>
+                <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
+                <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+            </Style.Setters>
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+            </Style.Resources>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid SizeChanged="PreviewPanel_SizeChanged">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="Original" />
+        <TextBlock Grid.Column="2" Grid.Row="0" Text="Processed" />
+
+        <ScrollViewer Grid.Row="1" Grid.Column="0" Style="{StaticResource ImageView}">
+            <Canvas MouseWheel="OnMouseWheel" MouseMove="OnMouseMove" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseLeftButtonUp="OnMouseLeftButtonUp">
+                <Image x:Name="OriginalImage" Source="{Binding SelectedStatusFile.Filename}" />
+            </Canvas>
+        </ScrollViewer>
+        
+        <ScrollViewer Grid.Row="1" Grid.Column="2" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+            <Canvas MouseWheel="OnMouseWheel" MouseMove="OnMouseMove" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseLeftButtonUp="OnMouseLeftButtonUp">
+                <Image x:Name="ProcessedImage" />
+            </Canvas>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

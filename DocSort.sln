@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{B2C0B2AA-B8BB-49F2-82C3-8F29A0F46C7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnnxPredictors", "OnnxPredictors\OnnxPredictors.csproj", "{44B8F242-3106-48FF-9F4B-19571E014017}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2C0B2AA-B8BB-49F2-82C3-8F29A0F46C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2C0B2AA-B8BB-49F2-82C3-8F29A0F46C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2C0B2AA-B8BB-49F2-82C3-8F29A0F46C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2C0B2AA-B8BB-49F2-82C3-8F29A0F46C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44B8F242-3106-48FF-9F4B-19571E014017}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44B8F242-3106-48FF-9F4B-19571E014017}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44B8F242-3106-48FF-9F4B-19571E014017}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44B8F242-3106-48FF-9F4B-19571E014017}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,51 @@
+﻿<Window x:Class="Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:view="clr-namespace:Client.Views"
+        mc:Ignorable="d" WindowState="Maximized"
+        Title="Image Sorter" MinHeight="600" MinWidth="1200">
+    <Window.Resources>
+        <ResourceDictionary Source="Layout.xaml" />
+    </Window.Resources>
+
+    <Grid Style="{StaticResource BodyGrid}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="400" />
+            <RowDefinition Height="Auto" />  <!-- GridSplitter -->
+            <RowDefinition Height="*" MinHeight="100" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" MinWidth="300" />
+            <ColumnDefinition Width="Auto" />  <!-- GridSplitter -->
+            <ColumnDefinition Width="*" MinWidth="300" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Splitters -->
+        <GridSplitter Grid.Row="2" Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <GridSplitter Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Height="6" HorizontalAlignment="Stretch" />
+
+        <!-- Menu -->
+        <view:MenuView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
+
+        <!-- Toolbar -->
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ToolbarBorder}">
+            <view:ToolbarView />
+        </Border>
+
+        <!-- FileView -->
+        <view:FileView Grid.Row="2" Grid.Column="0" />
+
+        <!-- ControlPanel -->
+        <view:ControlPanelView Grid.Row="2" Grid.Column="2" />
+
+        <!-- PreviewPanel -->
+        <view:PreviewPanelView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" />
+
+        <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Height="30" />
+    </Grid>
+</Window>

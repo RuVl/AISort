@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <LangVersion>latest</LangVersion>
+        <Nullable>warnings</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <StartupObject>Client.App</StartupObject>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>True</RunAnalyzersDuringLiveAnalysis>
+        <ApplicationIcon>Assets\Icons\icon.ico</ApplicationIcon>
+        <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+        <TargetFramework>net8.0-windows</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+      <DebugType>full</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NLog" Version="5.3.3" />
+        <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+        <PackageReference Include="SharpVectors" Version="1.8.4" />
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Resource Include="Assets\Icons\add_folder.svg" />
+        <Resource Include="Assets\Icons\add_files.svg" />
+        <Resource Include="Assets\Icons\remove.svg" />
+        <Resource Include="Assets\Icons\settings.svg" />
+        <Resource Include="Assets\Icons\trash.svg" />
+        <Resource Include="Assets\Icons\sort.svg" />
+        <Resource Include="Assets\Icons\preview.svg" />
+        <EmbeddedResource Include="NLog.config" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Update="Properties\Settings.settings">
+        <Generator>SettingsSingleFileGenerator</Generator>
+        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Properties\Settings.Designer.cs">
+        <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Settings.settings</DependentUpon>
+      </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\OnnxPredictors\OnnxPredictors.csproj" />
+    </ItemGroup>
+
+</Project>
