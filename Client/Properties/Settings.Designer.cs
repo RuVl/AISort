@@ -108,24 +108,6 @@ namespace Client.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
-<ArrayOfString xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
-  <string>*.jpg</string>
-  <string>*.jpeg</string>
-  <string>*.png</string>
-  <string>*.bmp</string>
-</ArrayOfString>")]
-        public global::System.Collections.Specialized.StringCollection AllowedImageExtensions {
-            get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["AllowedImageExtensions"]));
-            }
-            set {
-                this["AllowedImageExtensions"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("not_found")]
         public string NotFoundLabel {
             get {

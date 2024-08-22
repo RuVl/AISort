@@ -16,49 +16,49 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-      <DebugType>full</DebugType>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <DebugType>full</DebugType>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-      <DebugType>embedded</DebugType>
+        <DebugType>embedded</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NLog" Version="5.3.3" />
-        <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
-        <PackageReference Include="SharpVectors" Version="1.8.4" />
-        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
+        <PackageReference Include="MuPDF.NET" Version="2.1.0"/>
+        <PackageReference Include="NLog" Version="5.3.3"/>
+        <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1"/>
+        <PackageReference Include="SharpVectors" Version="1.8.4"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="Assets\Icons\add_folder.svg" />
-        <Resource Include="Assets\Icons\add_files.svg" />
-        <Resource Include="Assets\Icons\remove.svg" />
-        <Resource Include="Assets\Icons\settings.svg" />
-        <Resource Include="Assets\Icons\trash.svg" />
-        <Resource Include="Assets\Icons\sort.svg" />
-        <Resource Include="Assets\Icons\preview.svg" />
-        <EmbeddedResource Include="NLog.config" />
+        <Resource Include="Assets\Icons\add_folder.svg"/>
+        <Resource Include="Assets\Icons\add_files.svg"/>
+        <Resource Include="Assets\Icons\remove.svg"/>
+        <Resource Include="Assets\Icons\settings.svg"/>
+        <Resource Include="Assets\Icons\trash.svg"/>
+        <Resource Include="Assets\Icons\sort.svg"/>
+        <Resource Include="Assets\Icons\preview.svg"/>
+        <EmbeddedResource Include="NLog.config"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <None Update="Properties\Settings.settings">
-        <Generator>SettingsSingleFileGenerator</Generator>
-        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-      </None>
+        <None Update="Properties\Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <Compile Update="Properties\Settings.Designer.cs">
-        <DesignTimeSharedInput>True</DesignTimeSharedInput>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Settings.settings</DependentUpon>
-      </Compile>
+        <Compile Update="Properties\Settings.Designer.cs">
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+        </Compile>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <ProjectReference Include="..\OnnxPredictors\OnnxPredictors.csproj" />
+        <ProjectReference Include="..\OnnxPredictors\OnnxPredictors.csproj"/>
     </ItemGroup>
 
 </Project>

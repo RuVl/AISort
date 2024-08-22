@@ -1,5 +1,4 @@
-﻿using System;
-using Client.Properties;
+﻿using Client.Properties;
 using Microsoft.ML.OnnxRuntime;
 using NLog;
 
@@ -7,12 +6,7 @@ namespace Client;
 
 internal class Logging : IDisposable
 {
-    public Logger AppLogger { get; }
-    public Logger AiLogger { get; }
-
     private static Logging _instance;
-
-    public static Logging Instance => _instance ??= new Logging();
 
     private Logging()
     {
@@ -20,6 +14,22 @@ internal class Logging : IDisposable
 
         AppLogger = LogManager.GetLogger("Client");
         AiLogger = LogManager.GetLogger("OnnxRuntime");
+    }
+
+    public Logger AppLogger { get; }
+    public Logger AiLogger { get; }
+
+    public static Logging Instance => _instance ??= new Logging();
+
+    public static Logger DefaultLogger => _instance.AppLogger;
+
+    public void Dispose()
+    {
+        AppLogger.Info("App logging disabled");
+        AiLogger.Info("AI logging disabled");
+
+        LogManager.Shutdown();
+        GC.SuppressFinalize(this);
     }
 
     public void Load()
@@ -51,18 +61,6 @@ internal class Logging : IDisposable
 
     private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        if (e.ExceptionObject is Exception ex)
-        {
-            AppLogger.Fatal(ex, "Critical exception");
-        }
-    }
-
-    public void Dispose()
-    {
-        AppLogger.Info("App logging disabled");
-        AiLogger.Info("AI logging disabled");
-
-        LogManager.Shutdown();
-        GC.SuppressFinalize(this);
+        if (e.ExceptionObject is Exception ex) AppLogger.Fatal(ex, "Critical exception");
     }
 }

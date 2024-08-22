@@ -46,6 +46,6 @@
         <!-- PreviewPanel -->
         <view:PreviewPanelView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" />
 
-        <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Height="30" />
+        <view:StatusView Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" />
     </Grid>
 </Window>

@@ -1,40 +1,32 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Client.Properties" GeneratedClassName="Settings">
-  <Profiles />
-  <Settings>
-    <Setting Name="ModelPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="OutputDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">.\result\</Value>
-    </Setting>
-    <Setting Name="AiRunner" Type="OnnxPredictors.ModelRunner" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="EnableLogging" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="SortByLabels" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="MaxParallelTasks" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
-    </Setting>
-    <Setting Name="CopyIfNotFound" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="AllowedImageExtensions" Type="System.Collections.Specialized.StringCollection" Scope="User">
-      <Value Profile="(Default)">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-16&quot;?&gt;
-&lt;ArrayOfString xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
-  &lt;string&gt;*.jpg&lt;/string&gt;
-  &lt;string&gt;*.jpeg&lt;/string&gt;
-  &lt;string&gt;*.png&lt;/string&gt;
-  &lt;string&gt;*.bmp&lt;/string&gt;
-&lt;/ArrayOfString&gt;</Value>
-    </Setting>
-    <Setting Name="NotFoundLabel" Type="System.String" Scope="User">
-      <Value Profile="(Default)">not_found</Value>
-    </Setting>
-  </Settings>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
+              GeneratedClassNamespace="Client.Properties" GeneratedClassName="Settings">
+    <Profiles/>
+    <Settings>
+        <Setting Name="ModelPath" Type="System.String" Scope="User">
+            <Value Profile="(Default)"/>
+        </Setting>
+        <Setting Name="OutputDirectory" Type="System.String" Scope="User">
+            <Value Profile="(Default)">.\result\</Value>
+        </Setting>
+        <Setting Name="AiRunner" Type="OnnxPredictors.ModelRunner" Scope="User">
+            <Value Profile="(Default)">0</Value>
+        </Setting>
+        <Setting Name="EnableLogging" Type="System.Boolean" Scope="User">
+            <Value Profile="(Default)">True</Value>
+        </Setting>
+        <Setting Name="SortByLabels" Type="System.Boolean" Scope="User">
+            <Value Profile="(Default)">True</Value>
+        </Setting>
+        <Setting Name="MaxParallelTasks" Type="System.Int32" Scope="User">
+            <Value Profile="(Default)">1</Value>
+        </Setting>
+        <Setting Name="CopyIfNotFound" Type="System.Boolean" Scope="User">
+            <Value Profile="(Default)">False</Value>
+        </Setting>
+        <Setting Name="NotFoundLabel" Type="System.String" Scope="User">
+            <Value Profile="(Default)">not_found</Value>
+        </Setting>
+    </Settings>
 </SettingsFile>
 

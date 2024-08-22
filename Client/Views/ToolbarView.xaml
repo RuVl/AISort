@@ -42,15 +42,15 @@
         <Button Content="Add files" Tag="Assets/Icons/add_files.svg" Command="{Binding AddStatusFile}" />
         <Button Content="Add folder" Tag="Assets/Icons/add_folder.svg" Command="{Binding AddFolderFiles}" />
         <Separator />
-    
+
         <Button Content="Remove" Tag="Assets/Icons/remove.svg" Command="{Binding RemoveStatusFile}" />
         <Button Content="Clear" Tag="Assets/Icons/trash.svg" Command="{Binding ClearStatusFiles}" />
         <Separator />
-    
+
         <Button Content="Preview" Tag="Assets/Icons/preview.svg" Command="{Binding PreviewFile}" />
         <Button Content="Sort" Tag="Assets/Icons/sort.svg" Command="{Binding SortFiles}" />
         <Separator />
-    
+
         <Button Content="Preferences" Tag="Assets/Icons/settings.svg" />
     </StackPanel>
 </UserControl>

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.ML.OnnxRuntime.Tensors;
-using SixLabors.ImageSharp.Advanced;
+﻿using Microsoft.ML.OnnxRuntime.Tensors;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -9,26 +7,32 @@ namespace OnnxPredictors;
 
 public static class Utils
 {
-    public static Image ResizeImage(Image image, int targetWidth, int targetHeight)
+    public static Image<Rgb24> ResizeImage(Image<Rgb24> image, int targetWidth, int targetHeight)
     {
         return image.Clone(x => x.Resize(targetWidth, targetHeight));
     }
 
-    public static Tensor<float> ExtractPixels(Image image)
+    public static Tensor<float> ExtractPixels(in Image<Rgb24> image)
     {
         var tensor = new DenseTensor<float>(new[] { 1, 3, image.Height, image.Width });
 
-        using var img = image.CloneAs<Rgb24>();
-        for (var y = 0; y < img.Height; y++)
+        image.ProcessPixelRows(accessor =>
         {
-            var pixelSpan = img.DangerousGetPixelRowMemory(y).Span;
-            for (var x = 0; x < img.Width; x++)
+            for (var y = 0; y < accessor.Height; y++)
             {
-                tensor[0, 0, y, x] = pixelSpan[x].R / 255.0F; // r
-                tensor[0, 1, y, x] = pixelSpan[x].G / 255.0F; // g
-                tensor[0, 2, y, x] = pixelSpan[x].B / 255.0F; // b
+                var pixelRow = accessor.GetRowSpan(y);
+
+                // pixelRow.Length has the same value as accessor.Width,
+                // but using pixelRow.Length allows the JIT to optimize away bounds checks:
+                for (var x = 0; x < pixelRow.Length; x++)
+                {
+                    ref var pixel = ref pixelRow[x];
+                    tensor[0, 0, y, x] = pixel.R / 255.0F; // r
+                    tensor[0, 1, y, x] = pixel.G / 255.0F; // g
+                    tensor[0, 2, y, x] = pixel.B / 255.0F; // b
+                }
             }
-        }
+        });
 
         return tensor;
     }

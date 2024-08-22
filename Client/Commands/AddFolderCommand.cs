@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Input;
 using Client.Models;
-using Client.Properties;
 using Client.ViewModels;
 using Ookii.Dialogs.Wpf;
 
@@ -16,7 +14,10 @@ public class AddFolderCommand(FileViewModel viewModel) : ICommand
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    public bool CanExecute(object parameter) => true;
+    public bool CanExecute(object parameter)
+    {
+        return !SortCommand.IsIdle;
+    }
 
     public void Execute(object parameter)
     {
@@ -24,16 +25,15 @@ public class AddFolderCommand(FileViewModel viewModel) : ICommand
         {
             Description = "Выберите папку",
             Multiselect = false,
-            UseDescriptionForTitle = true,
-            
+            UseDescriptionForTitle = true
         };
 
         if (dialog.ShowDialog() != true)
             return;
 
-        foreach (string ext in Settings.Default.AllowedImageExtensions)
+        foreach (string ext in StatusFile.AllowedExtensions)
         {
-            string[] files = Directory.GetFiles(dialog.SelectedPath, ext!);
+            string[] files = Directory.GetFiles(dialog.SelectedPath, ext);
             foreach (string filename in files)
             {
                 var sf = new StatusFile(filename);

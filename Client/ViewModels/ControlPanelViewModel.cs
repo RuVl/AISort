@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -16,62 +13,6 @@ namespace Client.ViewModels;
 
 public class ControlPanelViewModel : INotifyPropertyChanged
 {
-    public string ModelPath
-    {
-        get => Path.GetFullPath(Settings.Default.ModelPath);
-        set
-        {
-            if (!Path.Exists(value)) return;
-            
-            try
-            {
-                Config.Instance.Predictor = YoloPredictor.Create(value, AiRunner, Settings.Default.EnableLogging);
-                SetField(value);
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-    }
-
-    public ModelRunner AiRunner
-    {
-        get => Settings.Default.AiRunner;
-        set => SetField(value);
-    }
-
-    public string OutputDirectory
-    {
-        get => Path.GetFullPath(Settings.Default.OutputDirectory);
-        set
-        {
-            if (!Directory.Exists(value)) return;
-            SetField(value);
-        }
-    }
-
-    public bool SortByLabels
-    {
-        get => Settings.Default.SortByLabels;
-        set
-        {
-            SetField(value);
-            if (!value) CopyIfNotFound = false;
-        }
-    }
-
-    public bool CopyIfNotFound
-    {
-        get => Settings.Default.CopyIfNotFound;
-        set => SetField(value);
-    }
-    
-    public ICommand SelectModelPathCommand { get; }
-    public ICommand SelectOutputDirectoryCommand { get; }
-
-    public ModelRunner[] SupportedModels { get; } = Enum.GetValues<ModelRunner>().Where(ModelHelpers.IsRunnerAvailable).ToArray();
-
     public ControlPanelViewModel()
     {
         SelectModelPathCommand = new RelayCommand(_ =>
@@ -89,20 +30,95 @@ public class ControlPanelViewModel : INotifyPropertyChanged
 
             ModelPath = dialog.FileName;
         });
-        
+
         SelectOutputDirectoryCommand = new RelayCommand(_ =>
         {
             var dialog = new FolderBrowserDialog
             {
                 Description = "Select output directory",
                 UseDescriptionForTitle = true,
-                InitialDirectory = OutputDirectory,
+                InitialDirectory = OutputDirectory
             };
-            
+
             if (dialog.ShowDialog() == DialogResult.OK)
                 OutputDirectory = dialog.SelectedPath;
         });
     }
+
+    public string ModelPath
+    {
+        get => Path.Exists(Settings.Default.ModelPath) ? Path.GetFullPath(Settings.Default.ModelPath) : "";
+        set
+        {
+            if (!Path.Exists(value)) return;
+
+            try
+            {
+                Config.Predictor = YoloPredictor.Create(value, AiRunner, Settings.Default.EnableLogging);
+                SetSetting(value);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+    }
+
+    public ModelRunner AiRunner
+    {
+        get => Settings.Default.AiRunner;
+        set
+        {
+            try
+            {
+                Config.Predictor = YoloPredictor.Create(ModelPath, value, Settings.Default.EnableLogging);
+                SetSetting(value);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+    }
+
+    public string OutputDirectory
+    {
+        get => Path.GetFullPath(Settings.Default.OutputDirectory);
+        set
+        {
+            if (!Directory.Exists(value)) return;
+            SetSetting(value);
+        }
+    }
+
+    public bool SortByLabels
+    {
+        get => Settings.Default.SortByLabels;
+        set
+        {
+            SetSetting(value);
+            if (!value) CopyIfNotFound = false;
+        }
+    }
+
+    public bool CopyIfNotFound
+    {
+        get => Settings.Default.CopyIfNotFound;
+        set => SetSetting(value);
+    }
+
+    public int MaxPossibleParallel => Environment.ProcessorCount;
+
+    public int MaxParallelTasks
+    {
+        get => Settings.Default.MaxParallelTasks;
+        set => SetSetting(value);
+    }
+
+    public ICommand SelectModelPathCommand { get; }
+    public ICommand SelectOutputDirectoryCommand { get; }
+
+    public ModelRunner[] SupportedModels { get; } = Enum.GetValues<ModelRunner>().Where(ModelHelpers.IsRunnerAvailable).ToArray();
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -111,13 +127,16 @@ public class ControlPanelViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected bool SetField<T>(T value, [CallerMemberName] string propertyName = null)
+    protected bool SetSetting<T>(T value, string settingName = null, [CallerMemberName] string propertyName = null)
     {
-        if (EqualityComparer<T>.Default.Equals((T)Settings.Default[propertyName], value)) return false;
-        
-        Settings.Default[propertyName] = value;
+        settingName ??= propertyName;
+        if (EqualityComparer<T>.Default.Equals((T)Settings.Default[settingName], value)) return false;
+
+        Logging.DefaultLogger.Info($"Update {settingName} property setting to {value}");
+
+        Settings.Default[settingName] = value;
         Settings.Default.Save();
-        
+
         OnPropertyChanged(propertyName);
         return true;
     }

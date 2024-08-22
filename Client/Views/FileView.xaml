@@ -7,17 +7,22 @@
              mc:Ignorable="d" DataContext="{DynamicResource FileViewModel}"
              d:DesignHeight="450" d:DesignWidth="450" MinHeight="400" MinWidth="300">
     <UserControl.Resources>
-        <Style x:Key="FileViewPanel" TargetType="Grid">
+        <Style x:Key="FilesDataGrid" TargetType="DataGrid">
+            <EventSetter Event="MouseDown" Handler="DataGrid_OnMouseDown" />
+            <Setter Property="Margin" Value="0 0 0 6" />
+            <Setter Property="RowBackground" Value="White" />
+            <Setter Property="AlternatingRowBackground" Value="WhiteSmoke" />
+            <Setter Property="CanUserResizeRows" Value="False" />
+            <Setter Property="SelectionMode" Value="Single" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="AutoGenerateColumns" Value="False" />
+            <Setter Property="EnableColumnVirtualization" Value="True" />
+            <Setter Property="EnableRowVirtualization" Value="True" />
+            <Setter Property="IsSynchronizedWithCurrentItem" Value="True" />
             <Style.Resources>
-                <!-- FileView DataGrid style -->
-                <Style TargetType="DataGrid">
-                    <Setter Property="Margin" Value="0 0 0 6" />
-                    <Setter Property="CanUserResizeRows" Value="False" />
-                    <Setter Property="SelectionMode" Value="Single" />
-                    <Setter Property="HeadersVisibility" Value="Column" />
-                    <Setter Property="IsReadOnly" Value="True" />
-                    <Setter Property="AutoGenerateColumns" Value="False" />
-                </Style>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="DarkGray" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray" />
             </Style.Resources>
         </Style>
         <Style x:Key="SvgButton" TargetType="Button">
@@ -37,7 +42,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Style="{StaticResource FileViewPanel}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -49,14 +54,12 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <DataGrid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" MouseDown="DataGrid_OnMouseDown"
-                  RowBackground="White" AlternatingRowBackground="WhiteSmoke"
-                  EnableColumnVirtualization="True" EnableRowVirtualization="True"
+        <DataGrid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Style="{StaticResource FilesDataGrid}"
                   ItemsSource="{Binding StatusFiles, IsAsync=True}" SelectedItem="{Binding SelectedStatusFile}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Path=Filename}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=FilePath}" />
                 <DataGridTextColumn Header="Status" Binding="{Binding Path=Status}" />
-                <DataGridTextColumn Header="Predictions" Binding="{Binding Path=PredictionResults.Length}" />
+                <DataGridTextColumn Header="Predictions" Binding="{Binding Path=PredictionResults.Count}" />
             </DataGrid.Columns>
         </DataGrid>
 

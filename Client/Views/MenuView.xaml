@@ -7,27 +7,27 @@
              d:DesignWidth="450">
     <Menu Height="20">
         <MenuItem Header="File">
-            <MenuItem Header="Add files..."></MenuItem>
-            <MenuItem Header="Add folder..."></MenuItem>
+            <MenuItem Header="Add files..." />
+            <MenuItem Header="Add folder..." />
             <Separator />
-            <MenuItem Header="Exit"></MenuItem>
+            <MenuItem Header="Exit" />
         </MenuItem>
         <MenuItem Header="Edit">
-            <MenuItem Header="Remove"></MenuItem>
-            <MenuItem Header="Clear"></MenuItem>
-            <MenuItem Header="Select All"></MenuItem>
+            <MenuItem Header="Remove" />
+            <MenuItem Header="Clear" />
+            <MenuItem Header="Select All" />
             <Separator />
-            <MenuItem Header="Preferences"></MenuItem>
+            <MenuItem Header="Preferences" />
         </MenuItem>
         <MenuItem Header="View">
-            <MenuItem Header="Preview"></MenuItem>
-            <MenuItem Header="Show previews"></MenuItem>
-            <MenuItem Header="Auto preview"></MenuItem>
+            <MenuItem Header="Preview" />
+            <MenuItem Header="Show previews" />
+            <MenuItem Header="Auto preview" />
             <Separator />
             <MenuItem Header="Toolbar">
-                <MenuItem Header="Icons"></MenuItem>
-                <MenuItem Header="Icons and Text"></MenuItem>
-                <MenuItem Header="Hide"></MenuItem>
+                <MenuItem Header="Icons" />
+                <MenuItem Header="Icons and Text" />
+                <MenuItem Header="Hide" />
             </MenuItem>
         </MenuItem>
     </Menu>

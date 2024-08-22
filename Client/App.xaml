@@ -6,5 +6,6 @@
     <Application.Resources>
         <vm:FileViewModel x:Key="FileViewModel" />
         <vm:ControlPanelViewModel x:Key="ControlPanelViewModel" />
+        <vm:PreviewPanelViewModel x:Key="PreviewPanelViewModel" FileViewModel="{StaticResource FileViewModel}" />
     </Application.Resources>
 </Application>

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.ML.OnnxRuntime;
+﻿using Microsoft.ML.OnnxRuntime;
 
 namespace OnnxPredictors;
 

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Client.Models;
-using Client.Properties;
 using Client.ViewModels;
 using Ookii.Dialogs.Wpf;
 
@@ -16,12 +13,15 @@ public class AddFileCommand(FileViewModel viewModel) : ICommand
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    public bool CanExecute(object parameter) => true;
+    public bool CanExecute(object parameter)
+    {
+        return !SortCommand.IsIdle;
+    }
 
     public void Execute(object parameter)
     {
-        string filter = string.Join(';', Settings.Default.AllowedImageExtensions.Cast<string>());
-        
+        string filter = string.Join(';', StatusFile.AllowedExtensions);
+
         var dialog = new VistaOpenFileDialog
         {
             Title = "Выберите файл",
@@ -29,7 +29,7 @@ public class AddFileCommand(FileViewModel viewModel) : ICommand
             CheckFileExists = true,
             Filter = $"Image Files ({filter})|{filter}"
         };
-        
+
         if (dialog.ShowDialog() != true)
             return;
 

@@ -3,24 +3,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" DataContext="{DynamicResource FileViewModel}"
+             mc:Ignorable="d" DataContext="{DynamicResource PreviewPanelViewModel}"
              d:DesignHeight="250" d:DesignWidth="450" MinHeight="100">
     <UserControl.Resources>
-        <Style x:Key="ImageView" TargetType="ScrollViewer">
-            <Style.Setters>
-                <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
-                <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
-            </Style.Setters>
+        <Style x:Key="CanvasHandlers" TargetType="Canvas">
+            <EventSetter Event="MouseMove" Handler="OnMouseMove" />
+            <EventSetter Event="MouseWheel" Handler="OnMouseWheel" />
+            <EventSetter Event="MouseLeftButtonUp" Handler="OnMouseLeftButtonUp" />
+            <EventSetter Event="MouseLeftButtonDown" Handler="OnMouseLeftButtonDown" />
+            <EventSetter Event="SizeChanged" Handler="Canvas_SizeChanged" />
+        </Style>
+        <Style x:Key="Preview" TargetType="ScrollViewer">
+            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
             <Style.Resources>
+                <Style TargetType="Canvas" BasedOn="{StaticResource CanvasHandlers}" />
                 <Style TargetType="Image">
                     <Setter Property="HorizontalAlignment" Value="Center" />
                     <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="RenderTransform"
+                            Value="{Binding ImageTransformGroup, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}" />
                 </Style>
             </Style.Resources>
         </Style>
     </UserControl.Resources>
-    
-    <Grid SizeChanged="PreviewPanel_SizeChanged">
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -30,19 +38,21 @@
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
+
         <TextBlock Grid.Column="0" Grid.Row="0" Text="Original" />
         <TextBlock Grid.Column="2" Grid.Row="0" Text="Processed" />
 
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Style="{StaticResource ImageView}">
-            <Canvas MouseWheel="OnMouseWheel" MouseMove="OnMouseMove" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseLeftButtonUp="OnMouseLeftButtonUp">
-                <Image x:Name="OriginalImage" Source="{Binding SelectedStatusFile.Filename}" />
+        <ScrollViewer Grid.Row="1" Grid.Column="0" Style="{StaticResource Preview}">
+            <Canvas>
+                <Image Name="Test" Source="{Binding SelectedImagePath, Mode=OneWay, NotifyOnTargetUpdated=True}"
+                       Binding.TargetUpdated="OnImageSourceChanged" />
             </Canvas>
         </ScrollViewer>
-        
-        <ScrollViewer Grid.Row="1" Grid.Column="2" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
-            <Canvas MouseWheel="OnMouseWheel" MouseMove="OnMouseMove" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseLeftButtonUp="OnMouseLeftButtonUp">
-                <Image x:Name="ProcessedImage" />
+
+        <ScrollViewer Grid.Row="1" Grid.Column="2" Style="{StaticResource Preview}">
+            <Canvas>
+                <Image Source="{Binding ProcessedImage, Mode=OneWay, NotifyOnTargetUpdated=True}"
+                       Binding.TargetUpdated="Binding_OnTargetUpdated" />
             </Canvas>
         </ScrollViewer>
     </Grid>

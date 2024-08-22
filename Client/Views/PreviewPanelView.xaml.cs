@@ -1,11 +1,9 @@
-﻿using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using Client.ViewModels;
 
 namespace Client.Views;
 
@@ -13,69 +11,50 @@ public partial class PreviewPanelView : UserControl
 {
     private const double MaxScale = 3.0;
     private const double MinScale = 0.2;
+    private double _initialScale = 1;
 
-    private Point _startPoint;
     private bool _isDragging;
 
     private ScaleTransform _scaleTransform = new();
-    private TranslateTransform _translateTransform = new();
 
-    private readonly TransformGroup _transformGroup;
+    private Point _startPoint;
+    private TranslateTransform _translateTransform = new();
 
     public PreviewPanelView()
     {
         InitializeComponent();
 
-        SizeChanged += PreviewPanel_SizeChanged;
+        SizeChanged += Canvas_SizeChanged;
 
-        OriginalImage.RenderTransform = ProcessedImage.RenderTransform = _transformGroup = new TransformGroup
-        {
-            Children = { _scaleTransform, _translateTransform }
-        };
-
-        if (DataContext is FileViewModel fileViewModel)
-            fileViewModel.PropertyChanged += OriginalImage_OnSourceUpdated;
+        ImageTransformGroup.Children = [_scaleTransform, _translateTransform];
     }
 
-    private void ResetTransforms()
+    public TransformGroup ImageTransformGroup { get; } = new();
+
+    private void ResetTransform(Canvas canvas, Image image)
     {
-        _transformGroup.Children[0] = _scaleTransform = new ScaleTransform();
-        _transformGroup.Children[1] = _translateTransform = new TranslateTransform();
+        _initialScale = image.Source is not null
+            ? double.Min(canvas.RenderSize.Width / image.Source.Width, canvas.RenderSize.Height / image.Source.Height)
+            : 1;
+
+        ImageTransformGroup.Children[0] = _scaleTransform = new ScaleTransform(_initialScale, _initialScale);
+        ImageTransformGroup.Children[1] = _translateTransform = new TranslateTransform(0, 0);
     }
 
-    private async void OriginalImage_OnSourceUpdated(object sender, PropertyChangedEventArgs e)
+    private void OnImageSourceChanged(object sender, DataTransferEventArgs e)
     {
-        if (sender is not FileViewModel fileViewModel) return;
-        if (e.PropertyName != nameof(fileViewModel.SelectedStatusFile)) return;
-        
-        ProcessedImage.Source = null;
-        
-        var statusFile = fileViewModel.SelectedStatusFile;
-        if (statusFile is null) return;
-        
-        ResetTransforms();
+        if (e.Source is not Image image) return;
+        if (image.Parent is not Canvas canvas) return;
 
-        if (statusFile.PredictionResults is null)
-        {
-            if (!fileViewModel.PreviewFile.CanExecute(null)) return;
-            await Task.Run(() => fileViewModel.PreviewFile.Execute(null));
-        }
-
-        var processedImage = Dispatcher.Invoke(() =>
-        {
-            string filename = statusFile.Filename;
-            var image = Utils.DrawBoundingBoxes(filename, statusFile.PredictionResults);
-            return Utils.ConvertImageSharpToImageSource(image);
-        });
-
-        ProcessedImage.Source = processedImage;
+        ResetTransform(canvas, image);
+        ConstrainImagePosition(canvas, image);
     }
 
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)
     {
         var canvas = sender as Canvas;
         var image = canvas?.Children[0] as Image;
-        if (image?.RenderTransform != _transformGroup) return;
+        if (image?.RenderTransform != ImageTransformGroup) return;
 
         double zoom = e.Delta > 0 ? .1 : -.1;
         double newScale = _scaleTransform.ScaleX + zoom;
@@ -86,22 +65,22 @@ public partial class PreviewPanelView : UserControl
 
         // Центрирование относительно центра изображения
         var mousePosition = e.GetPosition(image);
-        if (_transformGroup.Inverse != null)
+        if (ImageTransformGroup.Inverse != null)
         {
-            var relative = _transformGroup.Inverse.Transform(mousePosition);
+            var relative = ImageTransformGroup.Inverse.Transform(mousePosition);
 
             _scaleTransform.ScaleX = newScale;
             _scaleTransform.ScaleY = newScale;
 
-            var newMousePosition = _transformGroup.Transform(relative);
+            var newMousePosition = ImageTransformGroup.Transform(relative);
 
             _translateTransform.X -= newMousePosition.X - mousePosition.X;
             _translateTransform.Y -= newMousePosition.Y - mousePosition.Y;
         }
 
         // Ограничить перемещение
-        ConstrainImagePosition(canvas, image, _translateTransform, _scaleTransform);
-        
+        ConstrainImagePosition(canvas, image);
+
         e.Handled = true;
     }
 
@@ -124,7 +103,7 @@ public partial class PreviewPanelView : UserControl
         if (sender is not Canvas canvas) return;
         if (canvas.Children[0] is not Image image) return;
 
-        if (image.RenderTransform != _transformGroup) return;
+        if (image.RenderTransform != ImageTransformGroup) return;
 
         var position = e.GetPosition(this);
         var delta = Point.Subtract(position, _startPoint);
@@ -134,27 +113,39 @@ public partial class PreviewPanelView : UserControl
         _translateTransform.X += delta.X;
         _translateTransform.Y += delta.Y;
 
-        ConstrainImagePosition(canvas, image, _translateTransform, _scaleTransform);
+        ConstrainImagePosition(canvas, image);
     }
 
-    private void PreviewPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void Canvas_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        ConstrainImagePosition((Canvas)OriginalImage.Parent, OriginalImage, _translateTransform, _scaleTransform);
+        if (sender is not Canvas canvas) return;
+        if (canvas.Children[0] is not Image image) return;
+
+        ConstrainImagePosition(canvas, image);
     }
 
-    private static void ConstrainImagePosition(Canvas canvas, Image image, TranslateTransform translateTransform,
-        ScaleTransform scaleTransform)
+    private void ConstrainImagePosition(Canvas canvas, Image image)
     {
-        var imageBounds = new Size(image.ActualWidth * scaleTransform.ScaleX,
-            image.ActualHeight * scaleTransform.ScaleY);
+        if (image.Source is null) return;
+
+        var imageBounds = new Size(image.Source.Width * _scaleTransform.ScaleX, image.Source.Height * _scaleTransform.ScaleY);
         var canvasBounds = canvas.RenderSize;
 
-        translateTransform.X = imageBounds.Width > canvasBounds.Width
-            ? Math.Min(Math.Max(translateTransform.X, canvasBounds.Width - imageBounds.Width), 0)
-            : (canvasBounds.Width - imageBounds.Width) / 2;
+        _translateTransform.X = canvasBounds.Width < imageBounds.Width
+            ? Math.Clamp(_translateTransform.X, canvasBounds.Width - imageBounds.Width, 0)
+            : (canvasBounds.Width - imageBounds.Width) / 2f;
 
-        translateTransform.Y = imageBounds.Height > canvasBounds.Height
-            ? Math.Min(Math.Max(translateTransform.Y, canvasBounds.Height - imageBounds.Height), 0)
-            : (canvasBounds.Height - imageBounds.Height) / 2;
+
+        _translateTransform.Y = canvasBounds.Height < imageBounds.Height
+            ? Math.Clamp(_translateTransform.Y, canvasBounds.Height - imageBounds.Height, 0)
+            : (canvasBounds.Height - imageBounds.Height) / 2f;
+    }
+
+    private void Binding_OnTargetUpdated(object sender, DataTransferEventArgs e)
+    {
+        if (e.Source is not Image image) return;
+        if (image.Source is null) return;
+
+        Debug.WriteLine($"Original ({Test.Source.Width}, {Test.Source.Height}), Processed ({image.Source.Width}, {image.Source.Height})");
     }
 }

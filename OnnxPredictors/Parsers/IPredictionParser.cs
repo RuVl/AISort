@@ -6,6 +6,6 @@ namespace OnnxPredictors.Parsers;
 public interface IPredictionParser
 {
     float MinConfidence { get; }
-    
+
     IPredictionResult[] Parse(NamedOnnxValue outputOnnxValue);
 }

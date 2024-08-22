@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using OnnxPredictors.Inputs;
@@ -17,22 +15,13 @@ public class YoloParser(ILabel[] labels, Size imageSize, Size modelSize) : IPred
 
     public float MinConfidence { get; init; } = 0.20f;
 
-    public static YoloParser Create(YoloPredictor yoloPredictor, OneImageInput imageInput)
-    {
-        return new YoloParser(yoloPredictor.Labels, imageInput.InputImage.Size, yoloPredictor.InputSize);
-    }
-
     public IPredictionResult[] Parse(NamedOnnxValue outputOnnxValue)
     {
         if (Name != null && outputOnnxValue.Name != Name)
-        {
             throw new ArgumentException($"{outputOnnxValue.Name} is not equals output's name", nameof(outputOnnxValue));
-        }
 
         if (outputOnnxValue.ValueType != OnnxValueType.ONNX_TYPE_TENSOR)
-        {
             throw new ArgumentException($"Only tensors are supported for {outputOnnxValue.Name}", nameof(outputOnnxValue));
-        }
 
         var output = (DenseTensor<float>)outputOnnxValue.Value;
 
@@ -49,12 +38,12 @@ public class YoloParser(ILabel[] labels, Size imageSize, Size modelSize) : IPred
 
                 var outputBox = new RectangleF(x0 - w / 2, y0 - h / 2, w, h);
                 var box = (Rectangle)Utils.ScaleBox(outputBox, modelSize, imageSize);
-                
+
                 // The last is confidence for each label
-                for(var j = 4; j < output.Dimensions[1]; j++)
+                for (var j = 4; j < output.Dimensions[1]; j++)
                 {
                     float confidence = output[i, j, k];
-                    
+
                     // Skip low confidence values
                     if (confidence < MinConfidence) return;
 
@@ -69,5 +58,10 @@ public class YoloParser(ILabel[] labels, Size imageSize, Size modelSize) : IPred
         });
 
         return result.ToArray();
+    }
+
+    public static YoloParser Create(YoloPredictor yoloPredictor, OneImageInput imageInput)
+    {
+        return new YoloParser(yoloPredictor.Labels, imageInput.InputImage.Size, yoloPredictor.InputSize);
     }
 }
