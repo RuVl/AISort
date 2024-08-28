@@ -4,7 +4,7 @@ using OnnxPredictors.Results;
 
 namespace OnnxPredictors.Predictors;
 
-public interface IPredictor : IDisposable
+public interface IPredictor : IDisposable, ICloneable
 {
     ModelRunner Runner { get; }
 

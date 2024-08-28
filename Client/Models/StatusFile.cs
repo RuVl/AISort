@@ -103,21 +103,21 @@ public class StatusFile : INotifyPropertyChanged, IEquatable<StatusFile>
         Status = ProcessStatus.Processing;
         PredictionResults = [];
 
-        // try
-        // {
-        foreach (var input in GetPredictionInput())
+        try
         {
-            var results = predictor.Predict(input, null);
-            foreach (var result in results) PredictionResults.Add(result);
-        }
+            foreach (var input in GetPredictionInput())
+            {
+                var results = predictor.Predict(input, null);
+                foreach (var result in results) PredictionResults.Add(result);
+            }
 
-        Status = PredictionResults.Count > 0 ? ProcessStatus.Found : ProcessStatus.NotFound;
-        // }
-        // catch (Exception ex)
-        // {
-        // Logging.DefaultLogger.Error(ex);
-        // Status = ProcessStatus.Error;
-        // }
+            Status = PredictionResults.Count > 0 ? ProcessStatus.Found : ProcessStatus.NotFound;
+        }
+        catch (Exception ex)
+        {
+            Logging.DefaultLogger.Error(ex);
+            Status = ProcessStatus.Error;
+        }
     }
 
     private IEnumerable<IPredictionInput> GetPredictionInput()

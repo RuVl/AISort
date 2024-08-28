@@ -13,6 +13,8 @@ namespace OnnxPredictors.Predictors;
 /// </summary>
 public class YoloPredictor : BasePredictor
 {
+    private const float Overlap = 0.45f;
+
     protected YoloPredictor(string modelPath, ModelRunner runner, bool debug = false) : base(modelPath, runner, debug)
     {
         // Get model's labels
@@ -34,12 +36,14 @@ public class YoloPredictor : BasePredictor
         InputSize = new Size(imgsz[0], imgsz[1]);
     }
 
+    protected YoloPredictor()
+    {
+    }
+
     public IReadOnlyDictionary<string, NodeMetadata> InputMetadata => Session.InputMetadata;
     public IReadOnlyDictionary<string, NodeMetadata> OutputMetadata => Session.OutputMetadata;
 
-    public Size InputSize { get; }
-
-    private float Overlap { get; } = 0.45f;
+    public Size InputSize { get; protected init; }
 
     public static YoloPredictor Create(string modelPath, ModelRunner modelRunner = ModelRunner.Cpu, bool debug = false)
     {
@@ -56,7 +60,8 @@ public class YoloPredictor : BasePredictor
 
         var inputs = new List<NamedOnnxValue>(InputMetadata.Count);
 
-        foreach ((string name, var nodeMetadata) in InputMetadata) inputs.Add(predictionInput.Parse(name, nodeMetadata));
+        foreach ((string name, var nodeMetadata) in InputMetadata)
+            inputs.Add(predictionInput.Parse(name, nodeMetadata));
 
         using var outputs = Session.Run(inputs);
 
@@ -79,5 +84,17 @@ public class YoloPredictor : BasePredictor
 
             return overlap < Overlap ? float.PositiveInfinity : pred2.Confidence;
         })!).Distinct().ToArray();
+    }
+
+    public override object Clone()
+    {
+        return new YoloPredictor
+        {
+            Session = GetSession(),
+            ModelPath = ModelPath,
+            Runner = Runner,
+            Labels = Labels,
+            InputSize = InputSize
+        };
     }
 }

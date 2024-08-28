@@ -61,6 +61,6 @@ internal class Logging : IDisposable
 
     private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        if (e.ExceptionObject is Exception ex) AppLogger.Fatal(ex, "Critical exception");
+        if (e.ExceptionObject is Exception ex) AppLogger.Fatal(ex);
     }
 }

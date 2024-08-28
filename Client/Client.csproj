@@ -28,7 +28,7 @@
         <PackageReference Include="MuPDF.NET" Version="2.1.0"/>
         <PackageReference Include="NLog" Version="5.3.3"/>
         <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1"/>
-        <PackageReference Include="SharpVectors" Version="1.8.4"/>
+        <PackageReference Include="SharpVectors" Version="1.8.4.2"/>
     </ItemGroup>
 
     <ItemGroup>
