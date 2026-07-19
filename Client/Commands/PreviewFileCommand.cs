@@ -19,12 +19,9 @@ public class PreviewFileCommand(FileViewModel viewModel) : ICommand
 
     public void Execute(object parameter)
     {
-        if (Config.Predictor is null)
-            return;
-
         Logging.DefaultLogger.Info($"Predict preview for file: {viewModel.SelectedStatusFile.FilePath}. " +
                                    $"Use {Settings.Default.AiRunner:G} to run the predictor.");
 
-        viewModel.SelectedStatusFile.Process(Config.Predictor);
+        viewModel.SelectedStatusFile.Predict(Config.Predictor);
     }
 }

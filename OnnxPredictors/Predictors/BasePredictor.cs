@@ -16,13 +16,13 @@ public abstract class BasePredictor : IPredictor
     {
         Runner = runner;
         ModelPath = modelPath;
-        Debug = debug;
+        IsDebug = debug;
         Session = GetSession();
     }
 
     protected string ModelPath { get; init; }
 
-    protected bool Debug { get; init; }
+    protected bool IsDebug { get; init; }
 
     protected InferenceSession Session { get; init; }
 
@@ -30,17 +30,13 @@ public abstract class BasePredictor : IPredictor
 
     public ModelRunner Runner { get; protected init; }
 
-    public virtual IPredictionResult[] Predict(IPredictionInput predictionInput, IPredictionParser predictionParser = null)
-    {
-        throw new NotImplementedException();
-    }
+    public abstract IPredictionResult[] Predict(IPredictionInput predictionInput, IPredictionParser predictionParser = null);
 
-    public virtual object Clone()
-    {
-        throw new NotImplementedException();
-    }
+    public abstract Task<IPredictionResult[]> PredictAsync(IPredictionInput predictionInput, IPredictionParser predictionParser = null);
 
-    public void Dispose()
+    public abstract object Clone();
+
+    public virtual void Dispose()
     {
         Session?.Dispose();
         GC.SuppressFinalize(this);
@@ -48,7 +44,7 @@ public abstract class BasePredictor : IPredictor
 
     protected InferenceSession GetSession()
     {
-        return new InferenceSession(ModelPath, GetSessionOptions(Runner, Debug));
+        return new InferenceSession(ModelPath, GetSessionOptions(Runner, IsDebug));
     }
 
     private SessionOptions GetSessionOptions(ModelRunner runner, bool debug = true)
@@ -64,7 +60,7 @@ public abstract class BasePredictor : IPredictor
         };
 
         sessionOptions.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
-        sessionOptions.GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL;
+        sessionOptions.GraphOptimizationLevel = GraphOptimizationLevel.ORT_DISABLE_ALL;
 
         if (!debug) return sessionOptions;
 

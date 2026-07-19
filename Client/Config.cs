@@ -41,7 +41,7 @@ internal class Config : IDisposable
         }
         catch
         {
-            // ignored
+            Logging.DefaultLogger.Warn($"Failed to load Model: {Settings.Default.ModelPath} in {Settings.Default.AiRunner:G}");
         }
     }
 }

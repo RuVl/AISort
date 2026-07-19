@@ -9,4 +9,6 @@ public interface IPredictor : IDisposable, ICloneable
     ModelRunner Runner { get; }
 
     IPredictionResult[] Predict(IPredictionInput predictionInput, IPredictionParser predictionParser);
+
+    Task<IPredictionResult[]> PredictAsync(IPredictionInput predictionInput, IPredictionParser predictionParser);
 }

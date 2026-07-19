@@ -33,26 +33,13 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="10" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="Original" />
-        <TextBlock Grid.Column="2" Grid.Row="0" Text="Processed" />
+        <TextBlock Text="Image" Grid.Row="0" TextAlignment="Center" />
 
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Style="{StaticResource Preview}">
-            <Canvas>
-                <Image Name="Test" Source="{Binding SelectedImagePath, Mode=OneWay, NotifyOnTargetUpdated=True}"
+        <ScrollViewer Grid.Row="1" Style="{StaticResource Preview}">
+            <Canvas Name="DrawingCanvas">
+                <Image Source="{Binding SelectedImage, Mode=OneWay, NotifyOnTargetUpdated=True}"
                        Binding.TargetUpdated="OnImageSourceChanged" />
-            </Canvas>
-        </ScrollViewer>
-
-        <ScrollViewer Grid.Row="1" Grid.Column="2" Style="{StaticResource Preview}">
-            <Canvas>
-                <Image Source="{Binding ProcessedImage, Mode=OneWay, NotifyOnTargetUpdated=True}"
-                       Binding.TargetUpdated="Binding_OnTargetUpdated" />
             </Canvas>
         </ScrollViewer>
     </Grid>

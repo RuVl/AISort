@@ -5,7 +5,11 @@ namespace OnnxPredictors.Results;
 
 public interface IPredictionResult
 {
+    public int PredictionId { get; }
+
     public ILabel Label { get; }
-    public Rectangle BoundingBox { get; }
+
+    public RectangleF BoundingBox { get; }
+
     public float Confidence { get; }
 }

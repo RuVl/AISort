@@ -1,4 +1,8 @@
-﻿using Microsoft.ML.OnnxRuntime;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
 using Newtonsoft.Json;
 using OnnxPredictors.Inputs;
 using OnnxPredictors.Labels;
@@ -36,7 +40,7 @@ public class YoloPredictor : BasePredictor
         InputSize = new Size(imgsz[0], imgsz[1]);
     }
 
-    protected YoloPredictor()
+    private YoloPredictor()
     {
     }
 
@@ -52,39 +56,94 @@ public class YoloPredictor : BasePredictor
 
     public override IPredictionResult[] Predict(IPredictionInput predictionInput, IPredictionParser predictionParser = null)
     {
-        predictionParser ??= predictionInput switch
-        {
-            OneImageInput oneImageInput => new YoloParser(Labels, oneImageInput.InputImage.Size, InputSize),
-            _ => throw new ArgumentException("Only one image is supported if parser not provided", nameof(predictionInput))
-        };
+        predictionParser ??= GetParser(predictionInput);
 
         var inputs = new List<NamedOnnxValue>(InputMetadata.Count);
 
         foreach ((string name, var nodeMetadata) in InputMetadata)
-            inputs.Add(predictionInput.Parse(name, nodeMetadata));
+        {
+            // If width or height is -1
+            if (nodeMetadata.Dimensions is [.., int h, int w])
+            {
+                if (h == -1) nodeMetadata.Dimensions[^2] = InputSize.Height;
+                if (w == -1) nodeMetadata.Dimensions[^1] = InputSize.Width;
+            }
+            
+            inputs.Add(predictionInput.Parse2Named(name, nodeMetadata));
+        }
 
         using var outputs = Session.Run(inputs);
-
+        
         var predictions = outputs.SelectMany(predictionParser.Parse).ToArray();
 
-        return Suppress(predictions);
+       return Suppress(predictions);
+    }
+
+    public override async Task<IPredictionResult[]> PredictAsync(IPredictionInput predictionInput, IPredictionParser predictionParser = null)
+    {
+        predictionParser ??= GetParser(predictionInput);
+
+        var inputs = new List<OrtValue>(InputMetadata.Count);
+
+        foreach ((string name, var nodeMetadata) in InputMetadata)
+            inputs.Add(predictionInput.Parse(name, nodeMetadata));
+
+        try
+        {
+            var output = AllocateTensors(OutputMetadata);
+
+            var outputs = await Session.RunAsync(
+                null,
+                InputMetadata.Select(kp => kp.Key).ToImmutableList(),
+                inputs,
+                OutputMetadata.Select(kp => kp.Key).ToImmutableList(),
+                output);
+
+            var predictions = outputs.SelectMany(predictionParser.Parse).ToArray();
+            return Suppress(predictions);
+        }
+        finally
+        {
+            inputs.ForEach(i => i.Dispose());
+        }
+    }
+
+    protected IPredictionParser GetParser(IPredictionInput predictionInput)
+    {
+        return predictionInput switch
+        {
+            OneImageInput oneImageInput => YoloParser.Create(this, oneImageInput),
+            BatchImagesInput batchImagesInput => YoloParser.Create(this, batchImagesInput),
+            _ => throw new ArgumentException("Only one image is supported if parser not provided", nameof(predictionInput))
+        };
     }
 
     protected IPredictionResult[] Suppress(IPredictionResult[] predictions)
     {
-        return predictions.Select(pred1 => predictions.MinBy(pred2 =>
-        {
-            var (rect1, rect2) = (pred1.BoundingBox, pred2.BoundingBox);
+        return predictions
+            .GroupBy(p => p.PredictionId)
+            .SelectMany(group =>
+                group.Select(prediction =>
+                    group.Where(other =>
+                        {
+                            var intersection = RectangleF.Intersect(prediction.BoundingBox, other.BoundingBox);
+                            float intersectionArea = intersection.Width * intersection.Height;
 
-            var intersection = Rectangle.Intersect(rect1, rect2);
+                            if (intersectionArea == 0) return false;
 
-            float intArea = intersection.Width * intersection.Height; // intersection area
-            float unionArea = rect1.Width * rect1.Height + rect2.Width * rect2.Height - intArea; // union area
-            float overlap = intArea / unionArea; // overlap ratio
+                            float unionArea = prediction.BoundingBox.Width * prediction.BoundingBox.Height +
+                                other.BoundingBox.Width * other.BoundingBox.Height - intersectionArea;
 
-            return overlap < Overlap ? float.PositiveInfinity : pred2.Confidence;
-        })!).Distinct().ToArray();
+                            float overlap = intersectionArea / unionArea;
+
+                            return overlap >= Overlap;
+                        })
+                        .OrderByDescending(other => other.Confidence)
+                        .First()
+                ).Distinct()
+            ).ToArray();
     }
+
 
     public override object Clone()
     {
@@ -96,5 +155,25 @@ public class YoloPredictor : BasePredictor
             Labels = Labels,
             InputSize = InputSize
         };
+    }
+
+    private static ReadOnlyCollection<OrtValue> AllocateTensors(IReadOnlyDictionary<string, NodeMetadata> metadata)
+    {
+        var values = new List<OrtValue>();
+
+        foreach (var kv in metadata)
+        {
+            var meta = kv.Value;
+            if (!meta.IsTensor)
+            {
+                throw new ArgumentException("Only tensor input is supported");
+            }
+
+            long[] shape = Array.ConvertAll(meta.Dimensions, Convert.ToInt64);
+            var ortValue = OrtValue.CreateAllocatedTensorValue(OrtAllocator.DefaultInstance, meta.ElementDataType, shape);
+            values.Add(ortValue);
+        }
+
+        return values.AsReadOnly();
     }
 }

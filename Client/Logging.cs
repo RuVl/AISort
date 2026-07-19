@@ -42,7 +42,11 @@ internal class Logging : IDisposable
         var env = new EnvironmentCreationOptions
         {
             logLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_INFO,
-            loggingFunction = OnnxLogger
+            loggingFunction = OnnxLogger,
+            threadOptions = new OrtThreadingOptions
+            {
+                GlobalSpinControl = true
+            }
         };
         OrtEnv.CreateInstanceWithOptions(ref env);
 

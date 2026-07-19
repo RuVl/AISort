@@ -8,4 +8,6 @@ public interface IPredictionParser
     float MinConfidence { get; }
 
     IPredictionResult[] Parse(NamedOnnxValue outputOnnxValue);
+
+    IPredictionResult[] Parse(OrtValue outputOrtValue);
 }

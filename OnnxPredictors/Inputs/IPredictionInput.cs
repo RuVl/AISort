@@ -4,5 +4,7 @@ namespace OnnxPredictors.Inputs;
 
 public interface IPredictionInput
 {
-    NamedOnnxValue Parse(string name, NodeMetadata metadata);
+    OrtValue Parse(string name, NodeMetadata metadata);
+
+    NamedOnnxValue Parse2Named(string name, NodeMetadata metadata);
 }

@@ -1,5 +1,6 @@
-﻿using Microsoft.ML.OnnxRuntime.Tensors;
+﻿using System.Diagnostics;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -7,34 +8,20 @@ namespace OnnxPredictors;
 
 public static class Utils
 {
-    public static Image<Rgb24> ResizeImage(Image<Rgb24> image, int targetWidth, int targetHeight)
+    public static void ResizeImage(Image<Rgb24> image, int targetWidth, int targetHeight, ResizeMode mode = ResizeMode.BoxPad)
     {
-        return image.Clone(x => x.Resize(targetWidth, targetHeight));
-    }
-
-    public static Tensor<float> ExtractPixels(in Image<Rgb24> image)
-    {
-        var tensor = new DenseTensor<float>(new[] { 1, 3, image.Height, image.Width });
-
-        image.ProcessPixelRows(accessor =>
+        var options = new ResizeOptions
         {
-            for (var y = 0; y < accessor.Height; y++)
+            Size = new Size
             {
-                var pixelRow = accessor.GetRowSpan(y);
+                Height = targetHeight,
+                Width = targetWidth
+            },
+            TargetRectangle = new Rectangle(0, 0, targetWidth, targetHeight),
+            Mode = mode
+        };
 
-                // pixelRow.Length has the same value as accessor.Width,
-                // but using pixelRow.Length allows the JIT to optimize away bounds checks:
-                for (var x = 0; x < pixelRow.Length; x++)
-                {
-                    ref var pixel = ref pixelRow[x];
-                    tensor[0, 0, y, x] = pixel.R / 255.0F; // r
-                    tensor[0, 1, y, x] = pixel.G / 255.0F; // g
-                    tensor[0, 2, y, x] = pixel.B / 255.0F; // b
-                }
-            }
-        });
-
-        return tensor;
+        image.Mutate(x => x.Resize(options));
     }
 
     public static RectangleF ScaleBox(RectangleF box, Size from, Size to)
@@ -51,5 +38,28 @@ public static class Utils
 
         // Return the new scaled RectangleF
         return new RectangleF(newX, newY, newWidth, newHeight);
+    }
+
+    public static RectangleF ScaleBoxFromBoxPad(RectangleF box, Size from, Size to)
+    {
+        // Calculate ratio
+        float ratioWidth = (float)to.Width / from.Width;
+        float ratioHeight = (float)to.Height / from.Height;
+        float ratio = Math.Max(ratioWidth, ratioHeight);
+
+        // Scale by ratio
+        float scaledX = box.X * ratio;
+        float scaledY = box.Y * ratio;
+        float scaledWidth = box.Width * ratio;
+        float scaledHeight = box.Height * ratio;
+
+        // Calculate paddings to center the rectangle
+        float padX = (to.Width - from.Width * ratio) / 2;
+        float padY = (to.Height - from.Height * ratio) / 2;
+
+        scaledX += padX;
+        scaledY += padY;
+
+        return new RectangleF(scaledX, scaledY, scaledWidth, scaledHeight);
     }
 }

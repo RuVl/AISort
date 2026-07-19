@@ -97,7 +97,7 @@ public class StatusFile : INotifyPropertyChanged, IEquatable<StatusFile>
         return true;
     }
 
-    public void Process(IPredictor predictor)
+    public void Predict(IPredictor predictor)
     {
         if (Status != ProcessStatus.None) return;
         Status = ProcessStatus.Processing;
@@ -105,7 +105,7 @@ public class StatusFile : INotifyPropertyChanged, IEquatable<StatusFile>
 
         try
         {
-            foreach (var input in GetPredictionInput())
+            foreach (var input in GetPredictionInputs())
             {
                 var results = predictor.Predict(input, null);
                 foreach (var result in results) PredictionResults.Add(result);
@@ -120,7 +120,7 @@ public class StatusFile : INotifyPropertyChanged, IEquatable<StatusFile>
         }
     }
 
-    private IEnumerable<IPredictionInput> GetPredictionInput()
+    public IEnumerable<OneImageInput> GetPredictionInputs()
     {
         switch (Type)
         {
